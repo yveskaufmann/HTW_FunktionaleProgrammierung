@@ -8,9 +8,8 @@
 
 % Check if a Number exists inside a list
 member(X, [X|_]) -> true;
-member(X, [_|[X|_]]) -> true;
-member(X, [_|X]) -> true;
-member(_, _) -> false.
+member(X, [_|L]) -> member(X,L);
+member(_, []) -> false.
 
 % Calcualtes the checksum of a given number.
 checksum(0) -> 0;
