@@ -3,10 +3,11 @@
     member/2,
     sel_sort/2,
     checksum/1,
-	sort/1
+	sort/1,
+	sortCool/1
 ]).
-
 % Check if a Number exists inside a list
+
 member(X, [X|_]) -> true;
 member(X, [_|L]) -> member(X,L);
 member(_, []) -> false.
@@ -23,6 +24,8 @@ sel_sort(sort_in, H, L) -> H ++ L.
 % Sorts an unsorted list
 sort(L) -> lists:foldl(fun sel_sort/2, [], L).
 
-
+sortCool(L) -> sortCool([], L).
+sortCool(N,[X|L]) -> sortCool(sel_sort(X,N), L);
+sortCool(N, []) -> N.
 
 
