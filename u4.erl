@@ -1,15 +1,20 @@
 -module(u4).
--record(node, {key, value, left = nil, right = nil}).
 -export([
 	create_tree/1,
 	insert/3,
 	height/1,
-	traverse_in_order/2,
-	traverse_in_depth/2,
-	create_traverse/1
+	create_traverse/1,
+	main/1
 ]).
-% Check if a Number exists inside a list
 
+-record(node, {
+	key, 
+	value, 
+	left = nil, 
+	right = nil
+}).
+
+% Check if a Number exists inside a list
 insert(Key, Value, nil) -> #node{value= Value, key= Key};
 insert(Key, Value, Node) when Key == Node#node.key ->
 	Node#node{value = Value};
@@ -19,30 +24,48 @@ insert(Key, Value, Node) ->
 	Node#node{left=insert(Key, Value, Node#node.left)}.
 
 
-create_tree([]) -> nil;
-create_tree([X|XS]) -> insert(X, X, create_tree(XS)).
+create_tree(L) -> create_tree(L,nil).
+create_tree([], Node) -> Node;
+create_tree([X|XS], Node) -> create_tree(XS, insert(X,X, Node)).
 
 height(Node) -> round(math:log2(height_r(Node, 0))).
 height_r(nil, N) -> N;
 height_r(Node, N) -> height_r(Node#node.left, 1 + height_r(Node#node.right, N)).
 
-strategie(n) -> 
-	fun(Node, Fun, _) -> apply(Fun, [Node#node.value]) end;
-strategie(l) -> 
-	fun(Node, Fun, Traverse) -> apply(Traverse, [Node#node.left, Fun]) end;
-strategie(r) -> 
-	fun(Node, Fun, Traverse) -> apply(Traverse,[Node#node.right, Fun]) end.
-
-create_traverse([S1, S2, S3]) -> 
-	Strategie = [strategie(S1), strategie(S2), strategie(S3)],
-	fun Traverse(Node, Visitor) ->
-		case Node of
-			nil -> ok;
-			_ -> lists:foreach(
-				fun(S) -> 
-					apply(S, [Node, Visitor, Traverse]) 
-				end, Strategie)			
-		end
+create_traverse([_|_]=StrategieSteps) -> 
+	% Converts the strategie atoms to a strategie step list	
+	Strategie = lists:map(fun
+		(n) -> 
+			fun(Node, Visitor, _) -> Visitor(Node) end;
+		(l) ->
+			fun(Node, Visitor, Traverse) -> Traverse(Node#node.left, Visitor) end;
+		(r) ->
+			fun(Node, Visitor, Traverse) -> Traverse(Node#node.right, Visitor) end
+	end, StrategieSteps),
+	
+	% Builds the concrete tree traverser						
+	fun Traverse(nil, _) -> ok;
+		Traverse(Node, Visitor) -> 
+			lists:foreach(fun(Step) -> 
+				Step(Node, Visitor, Traverse) 
+			end, Strategie)			
 	end.
 
+findSuccessor(#node{left=Left, right=Right, key=Key}) ->
+	Right#node.key.
+
+main(_) ->
+	TestTree = create_tree([10, 6, 14, 2, 7, 12 , 17]),
+	TraverseSorted = create_traverse([l, n, r]),
+	DeepTraverse = create_traverse([n, r, l]),
+	
+	io:fwrite('TraverseSorted: '),
+	TraverseSorted(TestTree, fun(NodeValue) -> io:format('~b ', [NodeValue#node.value]) end),
+	io:format('~n'),	
+
+	io:fwrite('DeepTraverse: '),
+	DeepTraverse(TestTree, fun(NodeValue) -> io:format('~b ', [NodeValue#node.value]) end),
+	io:format('~n~n'),	
+	
+	done.
 
