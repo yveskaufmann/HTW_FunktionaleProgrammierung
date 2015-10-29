@@ -51,6 +51,23 @@ create_traverse([_|_]=StrategieSteps) ->
 			end, Strategie)			
 	end.
 
+widthTraverse([]) -> ok;
+widthTraverse(Node) when not is_list(Node) -> widthTraverse([Node]);
+widthTraverse([nil|NextNodes]) -> widthTraverse(NextNodes);
+widthTraverse([CurrentNode|NextNodes]) ->
+	io:format("~b ", [CurrentNode#node.value]),
+	widthTraverse(NextNodes ++ [CurrentNode#node.left, CurrentNode#node.right]).
+
+
+widthTraverse_p([]) -> ok;
+widthTraverse_p(Node) when not is_list(Node) -> widthTraverse_p([Node]);
+widthTraverse_p([nil|NextNodes]) -> widthTraverse_p(NextNodes);
+widthTraverse_p(NodeList) ->
+	CurrentNode = lists:last(NodeList),
+	io:format("~b ", [CurrentNode#node.value]),
+	widthTraverse_p([CurrentNode#node.right | [CurrentNode#node.left | lists:droplast(NodeList)]]).
+
+
 findSuccessor(#node{left=Left, right=Right, key=Key}) ->
 	Right#node.key.
 
@@ -65,7 +82,10 @@ main(_) ->
 
 	io:fwrite('DeepTraverse: '),
 	DeepTraverse(TestTree, fun(NodeValue) -> io:format('~b ', [NodeValue#node.value]) end),
-	io:format('~n~n'),	
+	io:format('~n'),	
 	
+	io:fwrite('WidthTraverse: '),
+	widthTraverse_p(TestTree),
+	io:format('~n~n'),	
 	done.
 
