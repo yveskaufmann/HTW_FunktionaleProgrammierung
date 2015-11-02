@@ -4,6 +4,14 @@
 	insert/3,
 	height/1,
 	create_traverse/1,
+	widthTraverse/1,
+	leftNode/1,
+	rightNode/1,
+	minNode/1,
+	maxNode/1,
+	findSuccessor/1,
+	findNode/2,
+	deleteNode/2,
 	main/1
 ]).
 
@@ -11,17 +19,20 @@
 	key, 
 	value, 
 	left = nil, 
-	right = nil
+	right = nil,
+	parent = nil
 }).
 
+
 % Check if a Number exists inside a list
-insert(Key, Value, nil) -> #node{value= Value, key= Key};
-insert(Key, Value, Node) when Key == Node#node.key ->
+insert(Key, Value, Node) -> insert(Key, Value, Node, nil).
+insert(Key, Value, nil, Parent) -> #node{value= Value, key= Key, parent=Parent};
+insert(Key, Value, Node, _ ) when Key == Node#node.key ->
 	Node#node{value = Value};
-insert(Key, Value, Node) when Node#node.key < Key ->
-	Node#node{right= insert(Key, Value, Node#node.right)};
-insert(Key, Value, Node) ->
-	Node#node{left=insert(Key, Value, Node#node.left)}.
+insert(Key, Value, Node, _ ) when Node#node.key < Key ->
+	Node#node{right= insert(Key, Value, Node#node.right, Node)};
+insert(Key, Value, Node, _) ->
+	Node#node{left=insert(Key, Value, Node#node.left, Node)}.
 
 
 create_tree(L) -> create_tree(L,nil).
@@ -59,17 +70,65 @@ widthTraverse([CurrentNode|NextNodes]) ->
 	widthTraverse(NextNodes ++ [CurrentNode#node.left, CurrentNode#node.right]).
 
 
-widthTraverse_p([]) -> ok;
-widthTraverse_p(Node) when not is_list(Node) -> widthTraverse_p([Node]);
-widthTraverse_p([nil|NextNodes]) -> widthTraverse_p(NextNodes);
-widthTraverse_p(NodeList) ->
-	CurrentNode = lists:last(NodeList),
-	io:format("~b ", [CurrentNode#node.value]),
-	widthTraverse_p([CurrentNode#node.right | [CurrentNode#node.left | lists:droplast(NodeList)]]).
+minNode(Node) when is_atom(Node) -> 
+	Node;
+minNode(#node{left=Left, key=Key, value=Value}) when Left =:= nil-> 
+	#node{key=Key, value=Value};
+minNode(#node{left=Left}) ->
+	minNode(Left).
 
+maxNode(Node) when is_atom(Node) -> 
+	Node;
+maxNode(#node{right=Right, key=Key, value=Value}) when Right =:= nil-> 
+	#node{key=Key, value=Value};
+maxNode(#node{right=Right}) ->
+	maxNode(Right).
 
-findSuccessor(#node{left=Left, right=Right, key=Key}) ->
-	Right#node.key.
+leftNode(#node{left=Left}) -> 
+	Left.
+
+rightNode(#node{right=Right}) -> 
+	Right.
+
+findNode(_, nil) -> nil;
+findNode(Key, Node) when Node#node.key == Key -> Node;
+findNode(Key, Node) when Node#node.key > Key ->
+	findNode(Key, Node#node.left);
+findNode(Key, Node) when Node#node.key < Key ->
+	findNode(Key, Node#node.right).
+
+findSuccessor(Node) -> 
+	minNode(rightNode(Node)).
+
+deleteNode(_, nil) -> nil;
+deleteNode(Key, #node{left=Left, right=Right, key=K}) when (Key == K) and (Left == nil) -> Right; 
+deleteNode(Key, #node{left=Left, right=Right, key=K}) when (Key == K) and (Right == nil) -> Left; 
+deleteNode(Key, #node{left=Left, right=Right, key=K}=Node) when (Key == K) -> 
+	#node{value=SValue, key=SKey} = findSuccessor(Node),
+	#node{ left=Left, key = SKey, value = SValue, right = deleteNode(SKey, Right)};
+deleteNode(Key, Node) when Key > Node#node.key ->
+	Node#node{right = deleteNode(Key, Node#node.right)};
+deleteNode(Key, Node) when Key < Node#node.key ->
+	Node#node{left = deleteNode(Key, Node#node.left)}.
+
+%deleteNode(Key, Node) -> deleteNode(findNode(Key, Node)).
+%deleteNode(nil) -> nil;
+% Case two childs
+% deleteNode(#node{value=Value, key=Key, left=Left, right=Right} = Node) when (Left /=nil) and (Right /=nil) ->
+%	Successor = findSuccessor(Node),
+%	deleteNode(Successor),
+%	Node#node{key=Successor#node.key, value=Successor#node.value};
+%	% Case only one child
+%deleteNode(#node{value=Value, key=Key, left=Left, right=Right} = Node) when (Left /= nil) and (Right == nil) ->
+%	Node#node{key=Key, value=Value, left=Left#node.left, right=Left#node.right};
+%deleteNode(#node{value=Value, key=Key, left=Left, right=Right} = Node) when (Left == nil) and (Right /= nil) ->	
+%	Node#node{key=Key, value=Value, left=Right#node.left, right=Right#node.right};
+%deleteNode(#node{parent=Parent, key=Key}) when (Parent /= nil) ->
+%	if 
+%		Key > Parent#node.key -> Parent#node{right=nil};
+%		Key < Parent#node.key -> Parent#node{left=nil}
+%	end;
+% deleteNode(_) -> nil.
 
 main(_) ->
 	TestTree = create_tree([10, 6, 14, 2, 7, 12 , 17]),
@@ -85,7 +144,15 @@ main(_) ->
 	io:format('~n'),	
 	
 	io:fwrite('WidthTraverse: '),
-	widthTraverse_p(TestTree),
-	io:format('~n~n'),	
+	widthTraverse(TestTree),
+	io:format('~n~n'),
+	case findSuccessor(TestTree) of
+		nil -> io:fwrite("nil ~n");
+		Node -> io:format("Successor: ~p~n", [Node#node.value])
+	end,
+	
+	T = deleteNode(10, TestTree),
+	io:fwrite('TraverseSorted: '),
+	TraverseSorted(T, fun(NodeValue) -> io:format('~b ', [NodeValue#node.value]) end),
+	io:format('~n'),	
 	done.
-

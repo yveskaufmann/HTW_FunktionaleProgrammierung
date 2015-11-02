@@ -2,7 +2,8 @@
 -export([
 	is_prime/1,
 	find_prime/1,
-	find_10001th_prime_number/0
+	find_10001th_prime_number/0,
+	main/1
 ]).
 
 is_prime(2) -> true;
@@ -23,5 +24,6 @@ find_10001th_prime_number() ->
 	find_prime(10001).
 
 
-
+main(_) ->
+	find_10001th_prime_number().
 
