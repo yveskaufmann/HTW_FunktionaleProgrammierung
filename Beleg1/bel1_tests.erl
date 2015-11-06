@@ -53,7 +53,7 @@ makeOrderedLeafList_test_()->
 	?_assertEqual([#leaf{char=$d,weight=2},#leaf{char=$b,weight=5},#leaf{char=$a,weight=7},#leaf{char=$e,weight=11}],
 		bel1:makeOrderedLeafList([{$b,5},{$d,2},{$e,11},{$a,7}])).
 
-combine_test_ignore() ->
+combine_test_() ->
 	[
 		?_assertEqual([],bel1:combine([])),
 		?_assertEqual([#leaf{char=$a, weight=2}],bel1:combine([#leaf{char=$a, weight=2}])),
@@ -69,12 +69,12 @@ combine_test_ignore() ->
 					#leaf{char=$a,weight=7},#leaf{char=$e,weight=11}]))
 	].
 
-repeatCombine_test_ignore()->
+repeatCombine_test_()->
 	?_assertEqual({fork, {fork, {leaf,97,7}, {fork,{leaf,98,5},{leaf,100,2},"bd",7}, "abd",14}, {leaf,101,11}, "abde",25},
 	bel1:repeatCombine([#leaf{char=$d,weight=2},#leaf{char=$b,weight=5},#leaf{char=$a,weight=7},
 		#leaf{char=$e,weight=11}])).
 
-createCodeTree_test_ignore()->
+createCodeTree_test_()->
 	[
 		?_assertEqual( {fork, {fork,{leaf,$a,7},{fork,{leaf, $b,5},{leaf,$d,2},"bd",7},"abd",14},{leaf,$e,11},"abde",25},
 			bel1:createCodeTree("eeedeeedeeeeebbbbbaaaaaaa")),
@@ -82,11 +82,11 @@ createCodeTree_test_ignore()->
 			bel1:createCodeTree(exampleString()))
 	].
 
-decode_test_()->
+decode_test_ignore()->
 	?_assertEqual(
 		"BAAHGA",
 		bel1:decode(exampleTree(),[1,0,0,0,0,1,1,1,1,1,1,1,0,0])).
 
-encode_decode_test_()->
+encode_decode_test_ignore()->
 		?_assertEqual("ADDABHGACDABGHAAAA", bel1:decode(exampleTree(),bel1:encode("ADDABHGACDABGHAAAA",exampleTree()))).
 

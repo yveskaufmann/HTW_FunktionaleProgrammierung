@@ -40,8 +40,19 @@ createLeaf({Char, Weight}) -> #leaf{char = Char, weight=Weight}.
 % Erzeugung eines CodeTrees aus zwei Teilbaeumen
 % Aus Gruenden der Testbarkeit werden links die Teilbaeume mit dem alphabetisch kleinerem Wert der 
 % Zeichenketten angeordnet. 
+-spec createFork(T1::tree(), T2::tree()) -> fork().
+createFork(T1, T2) -> #fork { 
+	left = T1, right = T2, 
+	chars = chars(T1) ++ chars(T2), 
+	weight = weight(T1) + weight(T2) 
+}.
+
 -spec makeCodeTree( T1::tree(), T2::tree()) -> tree().
-makeCodeTree(T1 , T2) -> toBeDefined.
+makeCodeTree(T1 , T2) -> case (chars(T1) < chars(T2)) of
+	true -> createFork(T1, T2);
+	false -> createFork(T2, T1)
+end.
+
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -62,14 +73,14 @@ makeCodeTree(T1 , T2) -> toBeDefined.
 %  2. Aufruf der Funktion fuer jeden Buchstaben
 
 -spec addLetter(list({char(),non_neg_integer()}), char())-> list({char(), non_neg_integer()}).
-addLetter(Char, TupelList) -> 
+addLetter(TupelList, Char) -> 
 	case lists:keyfind(Char, 1, TupelList)  of 
 		{_, C} -> lists:keystore(Char, 1, TupelList, {Char, C + 1});
 		false  -> [{Char, 1} | TupelList]
 	end.
 
 -spec createFrequencies(list(char())) -> list({char(), non_neg_integer()}).
-createFrequencies(Text) -> lists:foldl(fun addLetter/2, [], Text).
+createFrequencies(Text) -> lists:foldl(fun (Char, TupelList) -> addLetter(TupelList, Char) end, [], Text).
 
 %  Erzeugung eines Blattknotens fuer jeden Buchstaben in der Liste
 %  Aufsteigendes Sortieren der Blattknoten nach den Haeufigkeiten der Vorkommen der Buchstaben
@@ -96,15 +107,17 @@ makeOrderedLeafList(FeqList) -> lists:map(fun createLeaf/1, lists:keysort(2, Feq
 %  Tests. 
 
 -spec combine(list(tree())) -> list(tree()).		
-combine([TreeList]) -> toBeDefined.
+combine([First, Second| TL]) -> lists:sort(fun (L,R) -> weight(L) =< weight(R) end, [makeCodeTree(First, Second)|TL]);
+combine(TreeList) when is_list(TreeList) -> TreeList.
 
 %  Die Funktion repeatCombine soll die Funktion combine so lange aufrufen, bis nur noch ein Gesamtbaum uebrig ist.		
 -spec repeatCombine(TreeList::list(tree())) -> tree().
-repeatCombine(TreeList)-> toBeDefined.
+repeatCombine([TreeList]) -> TreeList;
+repeatCombine(TreeList) -> repeatCombine(combine(TreeList)).
 
 %  createCodeTree fuegt die einzelnen Teilfunktionen zusammen. Soll aus einem gegebenen Text, den Gesamtbaum erzeugen.
 -spec createCodeTree(Text::list(char())) -> tree().
-createCodeTree(Text)-> toBeDefined.
+createCodeTree(Text)-> makeOrderedLeafList( createFrequencies(Text)).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
