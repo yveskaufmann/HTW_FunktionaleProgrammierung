@@ -105,6 +105,6 @@ convert_test_() ->
 		], lists:sort(fun({X,_}, {Y, _}) -> X =< Y end ,bel1:convert(exampleTree())))
 	].
 
-encode_decode_test_ignore()->
+encode_decode_test_()->
 		?_assertEqual("ADDABHGACDABGHAAAA", bel1:decode(exampleTree(),bel1:encode("ADDABHGACDABGHAAAA",exampleTree()))).
 

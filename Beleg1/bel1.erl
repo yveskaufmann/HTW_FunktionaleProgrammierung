@@ -168,5 +168,12 @@ convert(#fork{left=L, right=R}, BitSteps, BitList) ->
 %  Bitsequenz generiert.
 %  Verwenden Sie dabei die erzeugte Tabelle.
 -spec encode(Text::list(char()), CodeTree::tree()) -> list(bit()).
-encode(Text, CodeTree) -> toBeDefined.
+encode(Text, CodeTree) -> 
+	CharTable = convert(CodeTree),
+	lists:foldl(fun (Char, Sequence) -> 
+		case lists:keyfind(Char, 1, CharTable) of
+			 {_, Seq} -> Sequence ++ Seq;
+			 false -> throw(text_and_codeTree_not_compatiple)
+		end
+	end, [], Text). 
 
