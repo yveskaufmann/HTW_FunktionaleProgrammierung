@@ -90,7 +90,9 @@ dictionaryOccurences() -> toBeDefined.
 %%% [{98,2}]]
 %%% Achtung: Die Anzahl der Buchstabenvorkommen (zweiter Wert des Tupels) muessen immer groesser 0 sein.
 
-removeZero(Y, Tuple) -> toBeDefined.
+-spec removeZero(occurrenceList(),{char(),non_neg_integer()})->occurrenceList().
+removeZero(Y, {Letter, 0})  -> Y;
+removeZero(Y, Tuple)  -> Y ++ [Tuple].
 
 -spec combinations(occurrenceList())->list(occurrenceList()).
 combinations([]) -> [ [] ];
