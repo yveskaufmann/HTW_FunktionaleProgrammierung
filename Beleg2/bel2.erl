@@ -15,7 +15,15 @@
 %%%
 %%%%%%%%%%%%%%%%
 -spec extractLetters(list(non_neg_integer()))->list(list(char())).
-extractLetters(XYZ) -> toBeDefined.
+extractLetters(Numbers) -> Len = length(Numbers), extractLetters(Len, Len + 1, Numbers).
+extractLetters(0, _, _) -> [[]];
+extractLetters(Len, WLen, Numbers ) ->
+    %%%
+    %%% In Order to avoid a to reverse the Number List we only reverse the
+    %%% index for the characters by unsing the function:
+    %%% Rev(Index) WholeLength + 1 - Len.
+    %%%
+    [ X ++ [Y] || X <- extractLetters(Len - 1, WLen, Numbers), Y <- assignChar(lists:nth(WLen - Len, Numbers))].
 
 %%%%%%%%%%%%%%%%
 %%%
@@ -23,17 +31,17 @@ extractLetters(XYZ) -> toBeDefined.
 %%% letterOccurences bekommt als Parameter eine Zeichenkette und berechnet, welcher Buchstabe wie haeufig vorkommt.
 %%% Ergebnis ist eine Liste von Tupeln bestehend aus dem jeweiligen Buchstaben und der Anzahl der Vorkommen.
 %%% Die Tupelliste muss alphabetisch nach dem Buchstaben geordnet sein.
-%%% Vervollstaendigen Sie die Funktion splitter, die in der Faltungsfunktion angewendet wird.  
+%%% Vervollstaendigen Sie die Funktion splitter, die in der Faltungsfunktion angewendet wird.
 %%%
 %%%%%%%%%%%%%%%%
 
 -spec splitter(char(),list({char(),non_neg_integer()}))->list({char(), non_neg_integer()}).
-splitter(Char, TupelList) -> case lists:keyfind(Char, 1, TupelList)  of 
+splitter(Char, TupelList) -> case lists:keyfind(Char, 1, TupelList)  of
         {_, C} -> lists:keystore(Char, 1, TupelList, {Char, C + 1});
         false  -> [{Char, 1} | TupelList]
     end.
 
--spec letterOccurences(list(char()))->occurrenceList().  
+-spec letterOccurences(list(char()))->occurrenceList().
 letterOccurences(Word)-> SList= lists:sort(Word),
 					OccList= lists:foldl(fun splitter/2,"",SList),
 					lists:reverse(OccList).
@@ -41,15 +49,15 @@ letterOccurences(Word)-> SList= lists:sort(Word),
 %%%%%%%%%%%%%%%%
 %%%
 %%% groupBy indexiert eine Liste von beliebigen Elementen mit Hilfe einer zu uebergebenden Indexierungsfunktion.
-%%% Die Funktion groupBy bekommt als Parameter die Liste sowie die Indexierungsfunktion.  
+%%% Die Funktion groupBy bekommt als Parameter die Liste sowie die Indexierungsfunktion.
 %%% Bei der Gruppierung werden alle Elemente, die den selben Wert bei der Anwendung der Gruppierungsfunktion
 %%% produzieren, in einer Liste zusammengefasst und dem Funktionswert als Schluessel zugeordnet.
-%%% So soll bspw. der Aufruf von groupBy(fun(X)->length(X) end, ["Hallo", "das", "ist", "ein", "Test"]) 
+%%% So soll bspw. der Aufruf von groupBy(fun(X)->length(X) end, ["Hallo", "das", "ist", "ein", "Test"])
 %%% die Liste nach der Laenge der Woerter zusammenfassen. Das Ergebnis ist also:
 %%% [{3->["das","ist","ein"],{4->"Test"},{5->"Hallo"}].
 %%% Die Map soll in einer Datenstruktur namens dict (siehe Erlang-Dokumentation) gespeichert werden.
 %%%
-%%%%%%%%%%%%%%%%					
+%%%%%%%%%%%%%%%%
 
 -spec groupBy(fun((A) -> B), list(A)) -> dict:dict(B,A).
 groupBy(GBFun, List)-> lists:foldl(fun(Element, Groups) -> dict:append(GBFun(Element), Element, Groups) end, dict:new(), List).
@@ -57,15 +65,15 @@ groupBy(GBFun, List)-> lists:foldl(fun(Element, Groups) -> dict:append(GBFun(Ele
 %%%%%%%%%%%%%%%%
 %%%
 %%% dictionaryOccurences soll die Liste der Woerter laden und nach den Buchstabenvorkommen indexieren.
-%%% Fuer das Laden des Files kann die Funktion loadDictionary (am Ende der Aufgabenstellung) verwendet werden.  
+%%% Fuer das Laden des Files kann die Funktion loadDictionary (am Ende der Aufgabenstellung) verwendet werden.
 %%% Die Gruppierung der Woerter soll ueber die vorausgehende Funktion groupBy erfolgen. Dabei
 %%% muss die Funktion letterOccurences eingesetzt werden.
-%%% Weiterhin muessen - um Gross- und Kleinschreibung zusammenzufuehren - die zu indizierenden Woerter in   
+%%% Weiterhin muessen - um Gross- und Kleinschreibung zusammenzufuehren - die zu indizierenden Woerter in
 %%% Kleinbuchstaben umgewandelt werden, so dass bspw. die Buchstabenkombination [{$i,1,{$l,1},{$n,1}] sowohl die Woerter
 %%% "Lin" als auch "nil" ergibt.
 %%%
 %%%%%%%%%%%%%%%%
-		
+
 -spec dictionaryOccurences()-> dict:dict() | {error,atom()}.
 dictionaryOccurences() -> toBeDefined.
 
@@ -81,7 +89,7 @@ dictionaryOccurences() -> toBeDefined.
 %%% {98,1}],[{97,2},
 %%% {98,2}],[{98,1}],
 %%% [{98,2}]]
-%%% Achtung: Die Anzahl der Buchstabenvorkommen (zweiter Wert des Tupels) muessen immer groesser 0 sein. 
+%%% Achtung: Die Anzahl der Buchstabenvorkommen (zweiter Wert des Tupels) muessen immer groesser 0 sein.
 
 removeZero(Y, Tuple) -> toBeDefined.
 
@@ -99,10 +107,10 @@ combinations([{Letter,Occ}|XS]) -> [ removeZero(Y,{Letter,Q}) || Y<-combinations
 subtract(Occ1, Occ2)-> toBeDefined.
 
 %%%%%%%%%%%%%%%%
-%%%	
+%%%
 %%% getWordLists soll aus einer beliebigen occurenceList und einem Dictionary, die Listen von Woertern bilden, die
 %%% durch die occurrenceList repraesentiert werden koennen.
-%%% So soll bspw. der Aufruf: 
+%%% So soll bspw. der Aufruf:
 %%% getWordLists([{$e,1},{$i,1},{$l,2},{$n,1},{$r,1},{$u,2},{$x,1},{$z,1}], dictionaryOccurences()).
 %%% folgende Liste von Woertern ergeben:
 %%%[["Zulu","Rex","nil"],
@@ -127,7 +135,7 @@ subtract(Occ1, Occ2)-> toBeDefined.
 %%% ["Lin","Rex","Zulu"]]
 
 -spec getWordLists(occurrenceList(), dict:dict())->list(list(list(char()))).
-getWordLists(OccList, Dict) -> toBeDefined.	
+getWordLists(OccList, Dict) -> toBeDefined.
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%%
@@ -144,7 +152,7 @@ filterWords(NumList, WordList)-> toBeDefined.
 %%%	getSentences bekommt eine Nummernliste und erzeugt daraus die Buchstabenkombinationen, die sich daraus
 %%% bilden lassen. Aus den Buchstabenkombinationen werden dann die Saetze ermittelt, die sich bilden lassen.
 %%%
--spec getSentences(list(char()))-> list(list(list(char()))).  
+-spec getSentences(list(char()))-> list(list(list(char()))).
 getSentences(NumberList)->
 		PossWords= extractLetters(NumberList),
 		OccListWords= lists:map(fun(X)->letterOccurences(X) end,PossWords),
@@ -157,12 +165,12 @@ getSentences(NumberList)->
 %%%%%%% Load Words from Dictionary
 %%% loadDictionary laedt das Woerterbuch in eine Liste von Strings.
 %%% Achtung: Das Woerterbuch ist ueber die Linux-Manpages generiert - manche Woerter
-%%% ergeben nicht unbedingt augenscheinlichen Sinn. 
--spec frname()->list(char()).		
+%%% ergeben nicht unbedingt augenscheinlichen Sinn.
+-spec frname()->list(char()).
 frname()-> "words_eng.txt".
 
 -spec loadDictionary()->{ok, {list(list(char)),integer()}} | {error, atom()}.
-loadDictionary() ->    
+loadDictionary() ->
 	case file:open(frname(), [read]) of
 		{'ok',S} ->  Content=reader(S,0,[]),
 		   file:close(S),
@@ -172,7 +180,7 @@ loadDictionary() ->
 
 -spec reader(any(),integer(),list(list(char)))-> {list(list(char())),integer()}.
 reader (File,N, Akku) ->
-   case io:get_line(File,'') of  
+   case io:get_line(File,'') of
 		eof	  -> {lists:reverse(Akku),N};
 		{error, Reason}     -> Reason;
 		Line -> reader(File, N+1,[lists:filter(fun(X)->X/=$\n end, Line)| Akku])
@@ -197,4 +205,3 @@ assignNum(X) when X==$m; X==$n; X==$o; X==$M; X==$N; X==$O -> $6;
 assignNum(X) when X==$p; X==$q; X==$r; X==$s; X==$P; X==$Q; X==$R; X==$S -> $7;
 assignNum(X) when X==$t; X==$u; X==$v; X==$T; X==$U; X==$V -> $8;
 assignNum(X) when X==$w; X==$x; X==$y; X==$z; X==$W; X==$X; X==$Y; X==$Z -> $9.
-
