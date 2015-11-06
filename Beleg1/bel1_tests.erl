@@ -50,8 +50,11 @@ createFrequency_test_()->
 								bel1:createFrequencies("abqcabcdb"))).
 
 makeOrderedLeafList_test_()->
-	?_assertEqual([#leaf{char=$d,weight=2},#leaf{char=$b,weight=5},#leaf{char=$a,weight=7},#leaf{char=$e,weight=11}],
-		bel1:makeOrderedLeafList([{$b,5},{$d,2},{$e,11},{$a,7}])).
+	[	?_assertEqual([#leaf{char=$d,weight=2},#leaf{char=$b,weight=5},#leaf{char=$a,weight=7},#leaf{char=$e,weight=11}],
+			bel1:makeOrderedLeafList([{$b,5},{$d,2},{$e,11},{$a,7}])),
+		?_assertEqual([#leaf{char=$y, weight=1}, #leaf{char=$z, weight=1},#leaf{char=$d,weight=2},#leaf{char=$b,weight=5},#leaf{char=$a,weight=7},#leaf{char=$e,weight=11}],
+			bel1:makeOrderedLeafList([{$b,5},{$d,2},{$e,11},{$a,7},{$y, 1}, {$z, 1}]))
+	].
 
 combine_test_() ->
 	[
@@ -82,7 +85,7 @@ createCodeTree_test_()->
 			bel1:createCodeTree(exampleString()))
 	].
 
-decode_test_ignore()->
+decode_test_()->
 	?_assertEqual(
 		"BAAHGA",
 		bel1:decode(exampleTree(),[1,0,0,0,0,1,1,1,1,1,1,1,0,0])).

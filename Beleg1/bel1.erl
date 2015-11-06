@@ -82,12 +82,17 @@ addLetter(TupelList, Char) ->
 -spec createFrequencies(list(char())) -> list({char(), non_neg_integer()}).
 createFrequencies(Text) -> lists:foldl(fun (Char, TupelList) -> addLetter(TupelList, Char) end, [], Text).
 
+compareLF({CharL, WeightL}, {CharR, WeightR}) -> if
+	WeightL == WeightR -> CharL =< CharR;
+	true -> WeightL =< WeightR
+	end.
+
 %  Erzeugung eines Blattknotens fuer jeden Buchstaben in der Liste
 %  Aufsteigendes Sortieren der Blattknoten nach den Haeufigkeiten der Vorkommen der Buchstaben
 %  z.B. aus makeOrderedLeafList([{$b,5},{$d,2},{$e,11},{$a,7}])
 % wird [#leaf{char=$d,weight=2},#leaf{char=$b,weight=5},#leaf{char=$a,weight=7},#leaf{char=$e,weight=11}]
 -spec makeOrderedLeafList(FreqList::list({char(), non_neg_integer()})) -> list(leaf()).
-makeOrderedLeafList(FeqList) -> lists:map(fun createLeaf/1, lists:keysort(2, FeqList)).
+makeOrderedLeafList(FreqList) -> lists:map(fun createLeaf/1, lists:sort(fun compareLF/2, FreqList)).
 
 %  Bei jedem Aufruf von combine sollen immer zwei Teilbaeume (egal ob fork oder leaf) zusammenfuegt werden.
 %  Der Parameter der Funktion combine ist eine aufsteigend sortierte Liste von Knoten.
@@ -117,7 +122,7 @@ repeatCombine(TreeList) -> repeatCombine(combine(TreeList)).
 
 %  createCodeTree fuegt die einzelnen Teilfunktionen zusammen. Soll aus einem gegebenen Text, den Gesamtbaum erzeugen.
 -spec createCodeTree(Text::list(char())) -> tree().
-createCodeTree(Text)-> makeOrderedLeafList( createFrequencies(Text)).
+createCodeTree(Text)-> repeatCombine(makeOrderedLeafList( createFrequencies(Text))).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -127,7 +132,26 @@ createCodeTree(Text)-> makeOrderedLeafList( createFrequencies(Text)).
 % Die Funktion decode soll eine Liste von Bits mit einem gegebenen Huffman Code (CodeTree) dekodieren.
 % Ergebnis soll die Zeichenkette im Klartext sein.	
 -spec decode(CodeTree::tree(), list( bit())) -> list(char()).
-decode(CodeTree, BitList) -> toBeDefined.
+%decode(CodeTree, BitList) ->  decode(Node, BitList, [], Root).
+%decode(#fork{left=Left, right=Right}, [Bit|Bits], Chars, Root) -> case Bit of
+%	1 -> decode(Right, Bits, Chars, Root);
+%	0 -> decode(Left, Bits, Chars, Root)
+%end.
+%decode(#left{char=Char}, Bits, Chars, Root) -> decode(Root, Bits, [Char|Chars], Root).
+
+
+decode(Codetree, BitList) -> 
+	{Chars, Node, _} = lists:foldl(fun decode_fold/2, {[], Codetree, Codetree}, BitList),
+	Chars ++ chars(Node).
+
+decode_fold(Bit, {Chars, Node, Root}) when is_record(Node, leaf) -> 
+	decode_fold(Bit, {Chars ++ chars(Node), Root, Root});
+decode_fold(Bit, {Chars, #fork{left=L, right=R}, Root}) -> { 
+	Chars, 
+	case Bit of 0 -> L; 1 -> R end,  
+	Root
+}.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 
