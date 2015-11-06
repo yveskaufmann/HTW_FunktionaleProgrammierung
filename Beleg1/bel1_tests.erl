@@ -85,10 +85,25 @@ createCodeTree_test_()->
 			bel1:createCodeTree(exampleString()))
 	].
 
+
 decode_test_()->
 	?_assertEqual(
 		"BAAHGA",
 		bel1:decode(exampleTree(),[1,0,0,0,0,1,1,1,1,1,1,1,0,0])).
+
+convert_test_() ->
+	[   
+		?_assertEqual([
+			{$A, [0]}, 
+			{$B, [1, 0, 0]}, 
+			{$C, [1, 0, 1, 0]}, 
+			{$D, [1, 0, 1, 1]}, 
+			{$E, [1, 1, 0, 0]}, 
+			{$F, [1, 1, 0, 1]}, 
+			{$G, [1, 1, 1, 0]}, 
+			{$H, [1, 1, 1, 1]}
+		], lists:sort(fun({X,_}, {Y, _}) -> X =< Y end ,bel1:convert(exampleTree())))
+	].
 
 encode_decode_test_ignore()->
 		?_assertEqual("ADDABHGACDABGHAAAA", bel1:decode(exampleTree(),bel1:encode("ADDABHGACDABGHAAAA",exampleTree()))).

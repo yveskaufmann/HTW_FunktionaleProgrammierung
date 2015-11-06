@@ -132,18 +132,11 @@ createCodeTree(Text)-> repeatCombine(makeOrderedLeafList( createFrequencies(Text
 % Die Funktion decode soll eine Liste von Bits mit einem gegebenen Huffman Code (CodeTree) dekodieren.
 % Ergebnis soll die Zeichenkette im Klartext sein.	
 -spec decode(CodeTree::tree(), list( bit())) -> list(char()).
-%decode(CodeTree, BitList) ->  decode(Node, BitList, [], Root).
-%decode(#fork{left=Left, right=Right}, [Bit|Bits], Chars, Root) -> case Bit of
-%	1 -> decode(Right, Bits, Chars, Root);
-%	0 -> decode(Left, Bits, Chars, Root)
-%end.
-%decode(#left{char=Char}, Bits, Chars, Root) -> decode(Root, Bits, [Char|Chars], Root).
-
-
 decode(Codetree, BitList) -> 
 	{Chars, Node, _} = lists:foldl(fun decode_fold/2, {[], Codetree, Codetree}, BitList),
 	Chars ++ chars(Node).
 
+-spec decode_fold(bit(), {list(char()), tree(), tree()}) -> {list(char()), tree(), tree()}.
 decode_fold(Bit, {Chars, Node, Root}) when is_record(Node, leaf) -> 
 	decode_fold(Bit, {Chars ++ chars(Node), Root, Root});
 decode_fold(Bit, {Chars, #fork{left=L, right=R}, Root}) -> { 
@@ -166,7 +159,10 @@ decode_fold(Bit, {Chars, #fork{left=L, right=R}, Root}) -> {
 %  aus dem Character und der Bitsequenz.
 %  Also: convert(CodeTree)->[{Char,BitSeq},...]
 -spec convert(CodeTree::tree()) -> list({char(), list(bit())}).
-convert(CodeTree) -> toBeDefined.
+convert(CodeTree) -> convert(CodeTree,[], []).
+convert(#leaf{char=Char}, BitSteps, BitList) -> [{Char, BitSteps}|BitList];
+convert(#fork{left=L, right=R}, BitSteps, BitList) -> 
+	convert(L, BitSteps ++ [0], convert(R, BitSteps ++ [1], BitList)).
 
 %  Schreiben Sie eine Funktion encode, die aus einem Text und einem CodeTree die entsprechende 
 %  Bitsequenz generiert.
