@@ -91,7 +91,7 @@ dictionaryOccurences() -> toBeDefined.
 %%% Achtung: Die Anzahl der Buchstabenvorkommen (zweiter Wert des Tupels) muessen immer groesser 0 sein.
 
 -spec removeZero(occurrenceList(),{char(),non_neg_integer()})->occurrenceList().
-removeZero(Y, {Letter, 0})  -> Y;
+removeZero(Y, {_, 0})  -> Y;
 removeZero(Y, Tuple)  -> Y ++ [Tuple].
 
 -spec combinations(occurrenceList())->list(occurrenceList()).
@@ -105,7 +105,17 @@ combinations([{Letter,Occ}|XS]) -> [ removeZero(Y,{Letter,Q}) || Y<-combinations
 %%% das Ergebnis [{$a,3},{$b,5},{$d,8}].
 
 -spec subtract(occurrenceList(), occurrenceList())-> occurrenceList().
-subtract(Occ1, Occ2)-> toBeDefined.
+subtract(Occ1, Occ2)->
+    lists:filter(
+        fun nonZerOccurrences/1,
+        dict:to_list(
+            dict:merge(
+                fun (Char, V1, V2) -> abs(V1 - V2) end,
+                dict:from_list(Occ1),
+                dict:from_list(Occ2)
+            )
+        )
+    ).
 
 %%%%%%%%%%%%%%%%
 %%%
@@ -206,3 +216,7 @@ assignNum(X) when X==$m; X==$n; X==$o; X==$M; X==$N; X==$O -> $6;
 assignNum(X) when X==$p; X==$q; X==$r; X==$s; X==$P; X==$Q; X==$R; X==$S -> $7;
 assignNum(X) when X==$t; X==$u; X==$v; X==$T; X==$U; X==$V -> $8;
 assignNum(X) when X==$w; X==$x; X==$y; X==$z; X==$W; X==$X; X==$Y; X==$Z -> $9.
+
+-spec nonZerOccurrences({char(),non_neg_integer()})->boolean().
+nonZerOccurrences({_, 0}) ->false;
+nonZerOccurrences({_, _}) ->true.
