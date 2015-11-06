@@ -34,6 +34,9 @@ weight(#leaf{weight=W}) -> W.
 chars(#fork{chars=C}) -> C;
 chars(#leaf{char=C}) -> [C].
 
+-spec createLeaf(tuple()) -> leaf().
+createLeaf({Char, Weight}) -> #leaf{char = Char, weight=Weight}.
+
 % Erzeugung eines CodeTrees aus zwei Teilbaeumen
 % Aus Gruenden der Testbarkeit werden links die Teilbaeume mit dem alphabetisch kleinerem Wert der 
 % Zeichenketten angeordnet. 
@@ -59,17 +62,21 @@ makeCodeTree(T1 , T2) -> toBeDefined.
 %  2. Aufruf der Funktion fuer jeden Buchstaben
 
 -spec addLetter(list({char(),non_neg_integer()}), char())-> list({char(), non_neg_integer()}).
-addLetter(TupelList, Char) -> toBeDefined.
+addLetter(Char, TupelList) -> 
+	case lists:keyfind(Char, 1, TupelList)  of 
+		{_, C} -> lists:keystore(Char, 1, TupelList, {Char, C + 1});
+		false  -> [{Char, 1} | TupelList]
+	end.
 
 -spec createFrequencies(list(char())) -> list({char(), non_neg_integer()}).
-createFrequencies(Text) -> toBeDefined.
+createFrequencies(Text) -> lists:foldl(fun addLetter/2, [], Text).
 
 %  Erzeugung eines Blattknotens fuer jeden Buchstaben in der Liste
 %  Aufsteigendes Sortieren der Blattknoten nach den Haeufigkeiten der Vorkommen der Buchstaben
 %  z.B. aus makeOrderedLeafList([{$b,5},{$d,2},{$e,11},{$a,7}])
 % wird [#leaf{char=$d,weight=2},#leaf{char=$b,weight=5},#leaf{char=$a,weight=7},#leaf{char=$e,weight=11}]
 -spec makeOrderedLeafList(FreqList::list({char(), non_neg_integer()})) -> list(leaf()).
-makeOrderedLeafList(FeqList) -> toBeDefined.
+makeOrderedLeafList(FeqList) -> lists:map(fun createLeaf/1, lists:keysort(2, FeqList)).
 
 %  Bei jedem Aufruf von combine sollen immer zwei Teilbaeume (egal ob fork oder leaf) zusammenfuegt werden.
 %  Der Parameter der Funktion combine ist eine aufsteigend sortierte Liste von Knoten.
