@@ -18,5 +18,3 @@ main(_) ->
 	io:format("Paradima of Java and Erlang: ~p ~n~n", [findParadigmasOfJavaAndErlang()]),
 	io:format("Paradimas of languages ~p ~n~n", [listOfParadigmas()]),
 	ok.
-	
-
