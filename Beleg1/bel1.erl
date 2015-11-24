@@ -137,13 +137,8 @@ decode(Codetree, BitList) ->
 	Chars ++ chars(Node).
 
 -spec decode_fold(bit(), {list(char()), tree(), tree()}) -> {list(char()), tree(), tree()}.
-decode_fold(Bit, {Chars, Node, Root}) when is_record(Node, leaf) -> 
-	decode_fold(Bit, {Chars ++ chars(Node), Root, Root});
-decode_fold(Bit, {Chars, #fork{left=L, right=R}, Root}) -> { 
-	Chars, 
-	case Bit of 0 -> L; 1 -> R end,  
-	Root
-}.
+decode_fold(Bit, {Chars, Node, Root}) when is_record(Node, leaf) -> decode_fold(Bit, {Chars ++ chars(Node), Root, Root});
+decode_fold(Bit, {Chars, #fork{left=L, right=R}, Root}) -> { Chars, case Bit of 0 -> L; 1 -> R end,  Root}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -173,7 +168,7 @@ encode(Text, CodeTree) ->
 	lists:foldl(fun (Char, Sequence) -> 
 		case lists:keyfind(Char, 1, CharTable) of
 			 {_, Seq} -> Sequence ++ Seq;
-			 false -> throw(text_and_codeTree_not_compatiple)
+			 false -> throw(text_and_codeTree_not_compatible)
 		end
 	end, [], Text). 
 
