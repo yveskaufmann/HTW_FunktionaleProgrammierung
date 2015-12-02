@@ -19,9 +19,8 @@ extractLetters(Numbers) -> Len = length(Numbers), extractLetters(Len, Len + 1, N
 extractLetters(0, _, _) -> [[]];
 extractLetters(Len, WLen, Numbers ) ->
     %%%
-    %%% In Order to avoid a to reverse the Number List we only reverse the
-    %%% index for the characters by unsing the function:
-    %%% Rev(Index) WholeLength + 1 - Len.
+    %%% In Order to avoid to reversing the Number List we only reverse the
+    %%% index for the characters by unsing function: Rev(Index) WholeLength + 1 - Len.
     %%%
     [ X ++ [Y] || X <- extractLetters(Len - 1, WLen, Numbers), Y <- assignChar(lists:nth(WLen - Len, Numbers))].
 
