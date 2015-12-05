@@ -11,11 +11,11 @@ extractLetters_test_()->
 
 letterOccurences_test_()->
 	?_assertEqual([{$a,3},{$b,2},{$c,2},{$d,1},{$e,1},{$f,2},{$g,1}], bel2:letterOccurences("abccbadaeffg")).
-	
+
 groupBy_test_()->
 	?_assertEqual([{3,["ein","ist","ist"]},{4,["Dies","Test"]},
 				{6,["spitze"]},{11,["Funktionale"]},{14,["Programmierung"]}],
-				prepDict(bel2:groupBy(fun(X)->length(X) end, 
+				prepDict(bel2:groupBy(fun(X)->length(X) end,
 				["Dies","ist","ein","Test","Funktionale","Programmierung","ist","spitze"]))).
 
 getWordsByOccurences_test_()->
@@ -30,10 +30,10 @@ subsetsOccurences_test_()->
 							lists:sort(LS)
 						end)].
 
-subtract_test_()-> 
+subtract_test_()->
 	[?_assertEqual([{97,3},{98,5},{100,8}],lists:keysort(1,bel2:subtract([{$a,3},{$b,2},{$c,5}],[{$b,7},{$a,6},{$d,8},{$c,5}])))].
-	
-getWordLists_test_()->
+
+getWordLists_test_ignore()->
 	[?_assertEqual(lists:sort([["Zulu","Rex","nil"],["Zulu","Rex","Lin"],["Rex","Zulu","nil"],
 		["Rex","Zulu","Lin"],["Uzi","Rex","null"],["Rex","Uzi","null"],["Zulu","nil","Rex"],
 		["Zulu","Lin","Rex"],["Uzi","null","Rex"],["null","Uzi","Rex"],["nil","Zulu","Rex"],
@@ -41,8 +41,8 @@ getWordLists_test_()->
 		["Linux","rulez"],["Rex","nil","Zulu"],["Rex","Lin","Zulu"],["nil","Rex","Zulu"],
 		["Lin","Rex","Zulu"]]), lists:sort(bel2:getWordLists([{$e,1},{$i,1},{$l,2},{$n,1},{$r,1},{$u,2},{$x,1},{$z,1}],
 		bel2:dictionaryOccurences())))].
- 
-getSentences_test()->
+
+getSentences_test_ignore()->
 	Erg=bel2:getSentences("375264"),
 	?assert(length(Erg)==2220),
 	?assert(length(lists:filter(fun(X)-> length(X)==1 end, Erg))==44),
@@ -50,7 +50,7 @@ getSentences_test()->
 	?assert(length(lists:filter(fun(X)-> length(X)==3 end, Erg))==168),
 	?assert(length(lists:filter(fun(X)-> length(X)==4 end, Erg))==0),
 	?assert(bel2:filterWords("375264",Erg)==[["Erlang"]]).
-						
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%
 %%%%%   Helper Functions
@@ -62,6 +62,6 @@ prepDict(Dict) -> 	L= dict:to_list(Dict),
 					lists:keysort(1,SortedV).
 
 getWordsByOccurences(Word, DictOcc) -> dict:find(bel2:letterOccurences(Word),DictOcc).
-					
+
 %%%%%
 %%%%%

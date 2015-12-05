@@ -59,7 +59,7 @@ letterOccurences(Word)-> SList= lists:sort(Word),
 %%%%%%%%%%%%%%%%
 
 -spec groupBy(fun((A) -> B), list(A)) -> dict:dict(B,A).
-groupBy(GBFun, List)-> lists:foldl(fun(Element, Groups) -> dict:append(GBFun(Element), Element, Groups) end, dict:new(), List).
+groupBy(GBFun, List)-> lists:foldr(fun(Element, Groups) -> dict:append(GBFun(Element), Element, Groups) end, dict:new(), List).
 
 %%%%%%%%%%%%%%%%
 %%%
@@ -74,7 +74,10 @@ groupBy(GBFun, List)-> lists:foldl(fun(Element, Groups) -> dict:append(GBFun(Ele
 %%%%%%%%%%%%%%%%
 
 -spec dictionaryOccurences()-> dict:dict() | {error,atom()}.
-dictionaryOccurences() -> toBeDefined.
+dictionaryOccurences() -> case loadDictionary() of
+    {Ok, {Words, _}} -> groupBy(fun(Word) -> letterOccurences(string:to_lower(Word)) end, Words);
+    Error -> Error
+end.
 
 %%%%%%%%%%%%%%%%
 %%%
