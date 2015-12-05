@@ -42,7 +42,7 @@ getWordLists_test_()->
 		["Lin","Rex","Zulu"]]), lists:sort(bel2:getWordLists([{$e,1},{$i,1},{$l,2},{$n,1},{$r,1},{$u,2},{$x,1},{$z,1}],
 		bel2:dictionaryOccurences())))].
 
-getSentences_test_ignore()->
+getSentences_test()->
 	Erg=bel2:getSentences("375264"),
 	?assert(length(Erg)==2220),
 	?assert(length(lists:filter(fun(X)-> length(X)==1 end, Erg))==44),

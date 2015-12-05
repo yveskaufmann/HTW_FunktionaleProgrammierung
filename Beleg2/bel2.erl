@@ -54,7 +54,7 @@ letterOccurences(Word)-> SList= lists:sort(Word),
 %%% produzieren, in einer Liste zusammengefasst und dem Funktionswert als Schluessel zugeordnet.
 %%% So soll bspw. der Aufruf von groupBy(fun(X)->length(X) end, ["Hallo", "das", "ist", "ein", "Test"])
 %%% die Liste nach der Laenge der Woerter zusammenfassen. Das Ergebnis ist also:
-%%% [{3->["das","ist","ein"],{4->"Test"},{5->"Hallo"}].
+%%% [{3->["das","ist","ein"],{4->"Test"},{5->"Hallo"}].[M`A[M`HalloD
 %%% Die Map soll in einer Datenstruktur namens dict (siehe Erlang-Dokumentation) gespeichert werden.
 %%%
 %%%%%%%%%%%%%%%%
@@ -76,7 +76,7 @@ groupBy(GBFun, List)-> lists:foldr(fun(Element, Groups) -> dict:append(GBFun(Ele
 
 -spec dictionaryOccurences()-> dict:dict() | {error,atom()}.
 dictionaryOccurences() -> case loadDictionary() of
-    {Ok, {Words, _}} -> groupBy(fun(Word) -> letterOccurences(string:to_lower(Word)) end, Words);
+    {ok, {Words, _}} -> groupBy(fun(Word) -> letterOccurences(string:to_lower(Word)) end, Words);
     Error -> Error
 end.
 
@@ -173,7 +173,23 @@ getWordLists(OccList, Dict) ->
 %%%
 
 -spec filterWords(list(char()), list(list(char()))) -> list(list(char)).
-filterWords(NumList, WordList)-> toBeDefined.
+filterWords(NumList, WordList)-> 
+	CharList = [assignChar(N) || N <- NumList],
+	NumListLen = length(NumList),
+	lists:filter(fun(Words) -> 
+		Letters = lists:append(Words),
+		if
+			length(Letters) =/= NumListLen -> false;
+			true -> lists:all(fun({Letter, Chars}) -> 
+				lists:any(fun(Char) -> assignNum(Letter) == assignNum(Char) end, Chars) end, lists:zip(Letters, CharList)) 
+		end
+	end, WordList).
+
+filter()->
+	Erg=bel2:getSentences("375264"),
+	bel2:filterWords("375264",Erg).
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%%
