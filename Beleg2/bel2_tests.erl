@@ -33,7 +33,7 @@ subsetsOccurences_test_()->
 subtract_test_()->
 	[?_assertEqual([{97,3},{98,5},{100,8}],lists:keysort(1,bel2:subtract([{$a,3},{$b,2},{$c,5}],[{$b,7},{$a,6},{$d,8},{$c,5}])))].
 
-getWordLists_test_ignore()->
+getWordLists_test_()->
 	[?_assertEqual(lists:sort([["Zulu","Rex","nil"],["Zulu","Rex","Lin"],["Rex","Zulu","nil"],
 		["Rex","Zulu","Lin"],["Uzi","Rex","null"],["Rex","Uzi","null"],["Zulu","nil","Rex"],
 		["Zulu","Lin","Rex"],["Uzi","null","Rex"],["null","Uzi","Rex"],["nil","Zulu","Rex"],

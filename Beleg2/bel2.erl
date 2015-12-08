@@ -149,7 +149,14 @@ subtract(Occ1, Occ2) ->
 %%% ["Lin","Rex","Zulu"]]
 
 -spec getWordLists(occurrenceList(), dict:dict())->list(list(list(char()))).
-getWordLists(OccList, Dict) -> toBeDefined.
+getWordLists(OccList, Dict) -> lists:map(
+fun(Occ) ->
+    case dict:find(lists:reverse(Occ), Dict) of
+        {ok, Word} -> Word;
+        _ -> nil
+    end
+end,
+combinations(OccList)).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%%
