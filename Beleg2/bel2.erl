@@ -133,7 +133,7 @@ subtract(Occ1, Occ2) ->
 %%% ["Rex","Zulu","Lin"],
 %%% ["Uzi","Rex","null"],
 %%% ["Rex","Uzi","null"],
-%%% ["Zulu","nil","Rex"],
+%%% ["Zulu","nil","Rex"]a
 %%% ["Zulu","Lin","Rex"],
 %%% ["Uzi","null","Rex"],
 %%% ["null","Uzi","Rex"],
@@ -148,15 +148,40 @@ subtract(Occ1, Occ2) ->
 %%% ["nil","Rex","Zulu"],
 %%% ["Lin","Rex","Zulu"]]
 
+%%% [{101,1},{104,1},{105,1},{107,1},{108,1},{110,1},{111,1},{114,1},{116,1},{119,1}] = Kenilworth 
+%%% [{97,2},{105,1},{108,1},{109,1},{110,1}] = Manila,animal 
+%%% [{101,1},{114,1},{120,1}] = Rex 
+%%% [{108,1},{117,2},{122,1}] = Zulu 
+%%% [{97,1},{101,1},{105,2},{108,1},{110,2}] = aniline 
+%%% [{99,1},{103,1},{105,2},{108,1},{110,3},{115,1},{117,2}] = cunnilingus 
+%%% [{102,1},{105,1},{108,1},{110,2},{117,1},{121,1}] = funnily 
+%%% [{101,2},{105,1},{106,1},{108,1},{110,1},{117,1},{118,1}] = juvenile 
+%%% [{101,2},{105,1},{106,1},{108,1},{110,1},{115,1},{117,1},{118,1}] = juveniles 
+%%% [{105,1},{108,1},{110,1}] = nil,Lin 
+%%% [{101,2},{105,1},{108,1},{110,2},{112,1},{115,2}] = penniless 
+%%% [{101,2},{105,1},{108,1},{110,1},{115,1}] = senile 
+%%% [{105,2},{108,1},{110,1},{116,1},{121,1}] = tinily 
+%%% [{105,2},{108,1},{110,2},{116,1},{121,1}] = tinnily 
+%%% [{97,1},{103,1},{105,3},{108,2},{109,1},{110,3},{116,1},{117,2}] = unilluminating 
+%%% [{97,2},{105,1},{108,2},{110,1},{118,1}] = vanilla 
+%%%
+
+print2(L) -> lists:foreach(fun(E) -> io:fwrite("~w ~n", [E]) end, L).
+print(L) -> lists:foreach(fun({K, V}) -> io:fwrite("~w = ~s ~n", [K, V]) end, L).
+filter(L) -> lists:filter(fun({K, V}) -> string:equal(V, "Rex") or string:equal(V, "Zulu") or (string:str(V, "nil") > 0) or (string:str(V, "Lin") > 0) end, L).
+
+-spec listAllKeys(dict:dict()) -> list().
+listAllKeys(Dict) -> print(filter(lists:sort(fun({K1, V1}, {K2, V2}) -> V1 =< V2 end,lists:map(fun({K, V})-> {K, string:join(V, ",")} end, dict:to_list(Dict))))).
+
 -spec getWordLists(occurrenceList(), dict:dict())->list(list(list(char()))).
-getWordLists(OccList, Dict) -> lists:map(
-fun(Occ) ->
-    case dict:find(lists:reverse(Occ), Dict) of
-        {ok, Word} -> Word;
-        _ -> nil
-    end
-end,
-combinations(OccList)).
+getWordLists(OccList, Dict) -> listAllKeys(Dict) ,print2(combinations(OccList)), lists:filter(fun(K) -> K =/= nil end, 
+lists:map(
+	fun(Occ) ->
+			case dict:find(Occ, Dict) of
+			{ok, Word} -> Word;
+			_ -> nil
+		end
+	end, combinations(OccList))).
 
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%%
