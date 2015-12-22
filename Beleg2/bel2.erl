@@ -173,22 +173,28 @@ getWordLists(OccList, Dict) ->
 %%%
 
 -spec filterWords(list(char()), list(list(char()))) -> list(list(char)).
-filterWords(NumList, WordList)-> 
-	CharList = [assignChar(N) || N <- NumList],
-	NumListLen = length(NumList),
-	lists:filter(fun(Words) -> 
-		Letters = lists:append(Words),
-		if
-			length(Letters) =/= NumListLen -> false;
-			true -> lists:all(fun({Letter, Chars}) -> 
-				lists:any(fun(Char) -> assignNum(Letter) == assignNum(Char) end, Chars) end, lists:zip(Letters, CharList)) 
-		end
-	end, WordList).
+filterWords(NumList, SenetenceList)-> 	
+	KeyList = [assignChar(N) || N <- NumList],	
+	
+	lists:filter(fun(Sentence) -> 
+		declaredBy(Sentence, KeyList)	
+	end, SenetenceList).
 
-filter()->
-	Erg=bel2:getSentences("375264"),
-	bel2:filterWords("375264",Erg).
-
+%%%
+%%% Überprüft ob ein Satz sich durch eine Liste von Character Listen 
+%%% bilden lässt. 
+%%%
+-spec declaredBy(list(list(char())), list(list(char()))) -> boolean().
+declaredBy(Sentence, CharList) -> 
+	declaredBy(lists:append(Sentence), CharList, check).
+declaredBy(Letters, KeyList, check) when length(Letters) =/= length(KeyList) -> 
+	false;
+declaredBy(Letters, KeyList, check) -> 
+	lists:all(fun({Letter, Chars}) -> 
+		lists:any(fun(Char) -> 
+			assignNum(Letter) == assignNum(Char) 
+		end, Chars) 
+	end, lists:zip(Letters, KeyList)). 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%
