@@ -1,0 +1,25 @@
+Hadoop... 03 - 08
+
+Starten einer VM:
+	# Starten der ersten VM
+	erl -sname 
+	tiger@hadoop 03.f4.htw-berlin.de
+	-set Cookie abc123
+	
+	#Starten der zweiten VM
+	spinne@hadoop08 - setCookie blah
+
+Verbinden der VMS:
+	Für jeden einzelnen Rechner:
+
+	-set_cookie(spinne, hadoop08, blah)
+
+Nützliche debug funktion:
+
+	Nodes() - gibt alle erreichbare Knoten zurück.
+
+Die Nodes haben, das Filesystem /shared/students gemountet,
+nützlich um die Binarys im Cluster zu verteien.
+
+Nützlich um mit dem externen Filesystem zu arbeiten ist der Befehl
+sshfs.
