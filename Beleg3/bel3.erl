@@ -40,7 +40,9 @@ duplicate([H|T]) -> duplicate(T).
 % Value - Wert der Summe der Zeile
 % Elems - Elemente aus denen gewaehlt werden soll
 -spec combineRows(non_neg_integer(), non_neg_integer(), non_neg_integer(), list(non_neg_integer()))->list(list(non_neg_integer())).
-combineRows(Col,Max,Value, Elems) -> toBeDefined. 
+combineRows(Col,Max,Value, Elems) -> combineRows(Col, row(Max, Value, Elems)). 
+combineRows(0, _) -> [[]];
+combineRows(Col, Rows) -> [X ++ Y || X <- combineRows(Col - 1, Rows),  Y <- Rows, not(duplicate(X, Y)) ].
 
 % calcSquares berechnet aus einem Teilquadrat alle moeglichen gueltigen Quadrate row, die sich bilden lassen
 % Aufruf: calcSquares(Part, Max, Value)
