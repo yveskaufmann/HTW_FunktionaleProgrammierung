@@ -1,5 +1,6 @@
 -module(bel3).
 -compile(export_all).
+-include_lib("../print.hrl").
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 	
@@ -15,22 +16,24 @@
 % Value - Wert der Summe der Zeile
 % Elements - Elemente aus denen ausgewaehlt werden soll
 -spec row(non_neg_integer(), non_neg_integer(),list(non_neg_integer())) -> list(list(non_neg_integer())).
-row(Max, Value, Elements) -> [Row || Row <- row(Max, Value, Elements, search), lists:sum(Row) == Value].  
-row(0, _, _, search) -> [[]];
-row(Max, Value, Elements, search) ->  
+row(Max, Value, Elements) -> row(Max, Max, Value, Elements, search).  
+row(0, _, _, _, search) -> [[]];
+row(Max, OrgMax , Value, Elements, search) ->  
 	[Row ++ [E] || 
-		E <- Elements,
-		Row <- row(Max - 1, Value, Elements -- [E], search)].
+		Row <- row(Max - 1, OrgMax, Value, Elements, search),
+		E <- Elements -- Row,
+		(Max /= OrgMax) or ((lists:sum(Row) + E) == Value)].
 
 % Funktion, die ermittelt, ob sich in zwei Listen doppelte Elemente befinden
 % Aufruf duplicate(Liste1,Liste2)
 % Liste1 - Erste Liste
 % Liste2 - Zweite Liste
 -spec duplicate(list(non_neg_integer()),list(non_neg_integer())) -> true | false.
+duplicate(List1 , List2) when (List1 == []) or (List2 == []) -> false;
 duplicate(List1,List2 )-> duplicate(lists:sort(List1 ++ List2)).
 duplicate([]) -> false;
 duplicate([H, H|_]) -> true;
-duplicate([H|T]) -> duplicate(T).
+duplicate([_|T]) -> duplicate(T).
 
 % combineRows setzt eine beliebige Anzahl von Reihen, die vorab berechnet werden, zusammen
 % Dabei wird ueberprueft, ob sich doppelte Elemente innerhalb der Reihen befinden.
@@ -38,11 +41,13 @@ duplicate([H|T]) -> duplicate(T).
 % Col - Anzahl der Reihen, die berechnet werden sollen
 % Max - Anzahl der Elemente pro Zeile
 % Value - Wert der Summe der Zeile
-% Elems - Elemente aus denen gewaehlt werden soll
+% Elems - Elemente aus denen gewa0uehlt werden soll
 -spec combineRows(non_neg_integer(), non_neg_integer(), non_neg_integer(), list(non_neg_integer()))->list(list(non_neg_integer())).
 combineRows(Col,Max,Value, Elems) -> combineRows(Col, row(Max, Value, Elems)). 
 combineRows(0, _) -> [[]];
 combineRows(Col, Rows) -> [X ++ Y || X <- combineRows(Col - 1, Rows),  Y <- Rows, not(duplicate(X, Y)) ].
+
+
 
 % calcSquares berechnet aus einem Teilquadrat alle moeglichen gueltigen Quadrate row, die sich bilden lassen
 % Aufruf: calcSquares(Part, Max, Value)
@@ -50,8 +55,64 @@ combineRows(Col, Rows) -> [X ++ Y || X <- combineRows(Col - 1, Rows),  Y <- Rows
 % Max - Anzahl der Elemente pro Zeile/Spalte
 % Value - Wert der Summe einer Zeile
 -spec calcSquares(list(non_neg_integer()), non_neg_integer(), non_neg_integer()) -> list(list(non_neg_integer())).
-calcSquares(Part, Max, Value)-> toBeDefined. 
+calcSquares(Part, Max, Value)-> 
+	Cols =  (Max - length(Part) div Max),
+	R =  [Part ++ X || X <- combineRows(Cols, Max, Value, lists:seq(1, Max * Max) -- Part), isMagicSquare(Part ++ X, Max, Value)].
+	%RET = [E || E <- R, isMagicSquare(E, Max, Value) ],
+	%RET.
 
+
+all(Predicate, List ) -> all(Predicate, List, 0, dict:new()).
+all(_, [], _, _) -> true;
+all(Predicate, [X|XS], Index, State) -> 
+	case  Predicate(X, Index, State) of
+		{true, NewState} -> all(Predicate, XS, Index + 1, NewState);
+		{false, _} -> false
+	end.
+
+
+isMagicSquare(E, Max, Value) ->
+
+	all(fun (V, Index, State) -> 
+		Row = Index div Max,
+		Col = Index - Row * Max,
+		IsLastRow = Row == (Max - 1),
+		
+		% Handle Col-Sum
+		PCV = dict_get_or_default(Col, 0, State),
+		Col_V = V + PCV,
+		IsColValid = (IsLastRow and (Col_V == Value)) or (not IsLastRow and (Col_V < Value)), 
+		% Handle Dias
+		IsDiaLR = Col == Row, 
+		IsDiaRL = Col == Max - (Row + 1), 
+		
+		{DiaValid, DiaState} = 	
+		case IsColValid of 
+			true ->
+				lists:foldl(fun({DiaKey, Active}, {Valid, S}) -> 
+					case Active of 
+						true -> 
+							Old_Dia = dict_get_or_default(DiaKey, 0, S),
+							New_Dia = V + Old_Dia,
+							{
+								((IsLastRow and (New_Dia == Value)) or (not IsLastRow and (New_Dia < Value))) and Valid, 
+								dict:store(DiaKey, New_Dia, S)
+							};
+						false ->
+							{Valid, S}
+					end 
+				end, {true, State}, [{diaLR, IsDiaLR}, {diaRL, IsDiaRL}]);
+			false -> 
+				{false, State}
+		end,
+		{DiaValid, dict:store(Col, Col_V, DiaState)}	
+	end, E).
+
+dict_get_or_default(Key, Default, Dict) -> 
+	case dict:find(Key, Dict) of
+				{ok, Value} -> Value;
+				_ -> Default
+	end.
 	
 % combineSquares ermittelt aus allen Teilquadraten die gueltige Loesung
 % Aufruf: combineSquares(Parts, Max, Value)

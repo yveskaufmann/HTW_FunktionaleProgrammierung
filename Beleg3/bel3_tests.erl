@@ -3,12 +3,22 @@
 -include_lib("../print.hrl").
 
 row_test()->
+	?debugTime("Row3", bel3:row(3,15, lists:seq(1,9))),
+	?debugTime("Row4",bel3:row(4,34, lists:seq(1,16))), 
 	Rows3=bel3:row(3,15, lists:seq(1,9)),
 	Rows4=bel3:row(4,34, lists:seq(1,16)),
 	?assert(length(Rows3)==48),
 	?assert(length(lists:filter(fun(X)-> lists:sum(X)/=15 end, Rows3))==0),
 	?assert(length(Rows4)==2064),
 	?assert(length(lists:filter(fun(X)-> lists:sum(X)/=34 end, Rows4))==0).
+
+duplicateTime_test() -> 
+		?debugTime("EmptyLists", bel3:duplicate([],[])),
+		?debugTime("Right Empty", bel3:duplicate([1,2,3,4,5],[])),
+		?debugTime("Left Empty", bel3:duplicate([],[1,2,3,4,5])),
+		?debugTime("List1", bel3:duplicate([1,2,3,4,5],[6,7,8,9,10])),
+		?debugTime("List2", bel3:duplicate([1,2,3,4,5],[6,7,8,9,10,1])),
+		?_assert(true).	
 
 duplicate_test_()->
 	[
@@ -28,7 +38,8 @@ combineRows_testFun()->
 	?assert(length(Rows4)==1238400),
 	?assert(length(lists:filter(fun(X)-> lists:sum(X)/=68 end, Rows4))==0).
 
-calcSquares_test_ignore()-> {timeout, 10, fun calcSquares_testFun/0}.	
+
+calcSquares_test_()-> {timeout, 100, fun calcSquares_testFun/0}.	
 calcSquares_testFun()->
 	[
 		?assertEqual([[4,9,2,3,5,7,8,1,6]], bel3:calcSquares([4,9,2], 3, 15)),
@@ -36,3 +47,7 @@ calcSquares_testFun()->
 		?assertEqual([[3,9,8,14,12,16,5,1,6,2,11,15,13,7,10,4]], bel3:calcSquares([3,9,8,14,12,16,5,1], 4, 34)),
 		?assertEqual([[15,16,2,1,3,4,14,13,6,9,7,12,10,5,11,8]], bel3:calcSquares([15,16,2,1], 4, 34))
 	].
+
+
+
+
