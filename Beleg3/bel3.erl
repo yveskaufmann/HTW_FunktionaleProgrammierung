@@ -43,9 +43,12 @@ duplicate([_|T]) -> duplicate(T).
 % Value - Wert der Summe der Zeile
 % Elems - Elemente aus denen gewa0uehlt werden soll
 -spec combineRows(non_neg_integer(), non_neg_integer(), non_neg_integer(), list(non_neg_integer()))->list(list(non_neg_integer())).
+combineRows(Col,Max,Value) -> combineRows(Col, Max, Value, lists:seq(1, Max * Max)). 
+
 combineRows(Col,Max,Value, Elems) -> combineRows(Col, row(Max, Value, Elems)). 
 combineRows(0, _) -> [[]];
-combineRows(Col, Rows) -> [X ++ Y || X <- combineRows(Col - 1, Rows),  Y <- Rows, not(duplicate(X, Y)) ].
+combineRows(Col, Rows) -> [CR ++ R || CR <- combineRows(Col - 1, Rows),  R <- Rows, not(duplicate(CR, R)) ].
+
 
 
 
@@ -57,7 +60,7 @@ combineRows(Col, Rows) -> [X ++ Y || X <- combineRows(Col - 1, Rows),  Y <- Rows
 -spec calcSquares(list(non_neg_integer()), non_neg_integer(), non_neg_integer()) -> list(list(non_neg_integer())).
 calcSquares(Part, Max, Value)-> 
 	Cols =  (Max - length(Part) div Max),
-	R =  [Part ++ X || X <- combineRows(Cols, Max, Value, lists:seq(1, Max * Max) -- Part), isMagicSquare(Part ++ X, Max, Value)].
+	[Part ++ X || X <- combineRows(Cols, Max, Value, lists:seq(1, Max * Max) -- Part), isMagicSquare(Part ++ X, Max, Value)].
 	%RET = [E || E <- R, isMagicSquare(E, Max, Value) ],
 	%RET.
 
@@ -152,6 +155,9 @@ magicsquare(Max, Mode)->
 	io:format("Anzahl der Quadrate:~p~n",[length(Result)]),
 	io:format("Magicsquare Time:~p~n",[U]),
 	Result.
+
+main(_) ->
+	magicsquare(3, debug).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %												%	%												%
