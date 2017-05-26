@@ -1,1 +1,1 @@
-Homework and Exercises for the course: Functional Programming in Erlang 
+Homework and Exercises from the course: Functional Programming in Erlang 
